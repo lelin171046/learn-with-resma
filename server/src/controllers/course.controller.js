@@ -15,8 +15,8 @@ exports.createCourse = async (req, res) => {
 
 exports.getAllCourses = async (req, res) => {
   try {
-    const { page = 1, limit = 12, category, level, price, sort, search, featured } = req.query;
-    const query = { isPublished: true };
+    const { page = 1, limit = 12, category, level, price, sort, search, featured, all } = req.query;
+    const query = all ? {} : { isPublished: true };
 
     if (category) query.category = category;
     if (level) query.level = level;

@@ -18,7 +18,7 @@ const courseSchema = new mongoose.Schema(
     rating: { type: Number, default: 0 },
     totalRatings: { type: Number, default: 0 },
     tags: [String],
-    isPublished: { type: Boolean, default: false },
+    isPublished: { type: Boolean, default: true },
     isFeatured: { type: Boolean, default: false },
     requirements: [String],
     learningOutcomes: [String],

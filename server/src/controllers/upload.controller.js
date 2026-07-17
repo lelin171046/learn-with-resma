@@ -28,6 +28,18 @@ exports.uploadMultiple = async (req, res) => {
   }
 };
 
+exports.uploadPdf = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No PDF file provided' });
+    }
+    const { url, publicId } = await uploadToCloudinary(req.file, 'learn-with-resma/pdfs');
+    res.status(201).json({ success: true, url, publicId, originalName: req.file.originalname });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'PDF upload failed' });
+  }
+};
+
 exports.deleteImage = async (req, res) => {
   try {
     const { publicId } = req.body;

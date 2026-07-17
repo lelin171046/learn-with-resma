@@ -154,5 +154,10 @@ export const uploadService = {
     if (folder) fd.append('folder', folder);
     return api.post('/upload/multiple', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
   },
+  pdf: (file) => {
+    const fd = new FormData();
+    fd.append('pdf', file);
+    return api.post('/upload/pdf', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  },
   delete: (publicId) => api.delete('/upload', { data: { publicId } }),
 };

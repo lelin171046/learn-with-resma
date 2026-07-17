@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ReactPlayer from 'react-player';
 import { motion } from 'framer-motion';
 import { FiPlay, FiCheck, FiChevronLeft, FiChevronRight, FiDownload, FiMessageSquare, FiFileText } from 'react-icons/fi';
-import { courseService, lessonService, progressService, quizService, commentService } from '../services/services';
+import { courseService, progressService, quizService, commentService } from '../services/services';
 import { useAuth } from '../context/AuthProvider';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -23,6 +23,9 @@ export default function CoursePlayer() {
     queryKey: ['course-player', slug],
     queryFn: () => courseService.getBySlug(slug).then((d) => d.data),
   });
+
+  const lessons = data?.lessons || [];
+  const currentLesson = lessons[currentLessonIndex];
 
   const { data: progressData } = useQuery({
     queryKey: ['progress', data?.course?._id],
@@ -43,8 +46,8 @@ export default function CoursePlayer() {
   });
 
   const completeMutation = useMutation({
-    mutationFn: () => progressService.markLessonComplete(data.course._id, currentLesson._id),
-    onSuccess: () => { queryClient.invalidateQueries(['progress']); toast.success('Lesson completed!'); },
+    mutationFn: () => progressService.markLessonComplete(data?.course?._id, currentLesson?._id),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['progress'] }); toast.success('Lesson completed!'); },
   });
 
   const submitQuizMutation = useMutation({
@@ -52,18 +55,17 @@ export default function CoursePlayer() {
     onSuccess: (res) => {
       setQuizResult(res.data);
       if (res.data.passed) { completeMutation.mutate(); setShowQuiz(false); }
-      queryClient.invalidateQueries(['progress']);
+      queryClient.invalidateQueries({ queryKey: ['progress'] });
     },
   });
 
   const submitCommentMutation = useMutation({
-    mutationFn: () => commentService.create({ lesson: currentLesson._id, course: data.course._id, text: commentText }),
-    onSuccess: () => { setCommentText(''); queryClient.invalidateQueries(['comments']); toast.success('Comment posted'); },
+    mutationFn: () => commentService.create({ lesson: currentLesson?._id, course: data?.course?._id, text: commentText }),
+    onSuccess: () => { setCommentText(''); queryClient.invalidateQueries({ queryKey: ['comments', currentLesson?._id] }); toast.success('Comment posted'); },
   });
 
   if (isLoading) return <LoadingSpinner fullPage />;
-  const lessons = data?.lessons || [];
-  const currentLesson = lessons[currentLessonIndex];
+
   const isCompleted = (id) => progressData?.progress?.completedLessons?.includes(id);
 
   const handleNext = () => {
@@ -131,12 +133,17 @@ export default function CoursePlayer() {
 
           <p className="text-gray-400 mb-6">{currentLesson?.description}</p>
 
+          {/* PDF Notes */}
           {currentLesson?.pdfNotes?.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-white font-semibold mb-3 flex items-center gap-2"><FiFileText /> PDF Notes</h3>
+            <div className="mb-6 bg-gray-800 rounded-xl p-4">
+              <h3 className="text-white font-semibold mb-3 flex items-center gap-2"><FiFileText /> Class Notes</h3>
               <div className="space-y-2">
                 {currentLesson.pdfNotes.map((note, i) => (
-                  <a key={i} href={note.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary-400 hover:underline"><FiDownload /> {note.title}</a>
+                  <a key={i} href={note.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-primary-400 hover:text-primary-300 bg-gray-700/50 rounded-lg p-3 transition-colors">
+                    <FiFileText className="w-5 h-5 flex-shrink-0" />
+                    <span className="flex-1 text-sm">{note.title}</span>
+                    <FiDownload className="w-4 h-4 flex-shrink-0" />
+                  </a>
                 ))}
               </div>
             </div>
@@ -199,8 +206,12 @@ export default function CoursePlayer() {
 
           {/* Navigation */}
           <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-700">
-            <button onClick={handlePrev} disabled={currentLessonIndex === 0} className="flex items-center gap-2 text-gray-400 hover:text-white disabled:opacity-30"><FiChevronLeft /> Previous</button>
-            <button onClick={handleNext} disabled={currentLessonIndex === lessons.length - 1} className="flex items-center gap-2 text-gray-400 hover:text-white disabled:opacity-30">Next <FiChevronRight /></button>
+            <button onClick={handlePrev} disabled={currentLessonIndex === 0} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm font-medium">
+              <FiChevronLeft className="w-4 h-4" /> Previous Video
+            </button>
+            <button onClick={handleNext} disabled={currentLessonIndex === lessons.length - 1} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm font-medium">
+              Next Video <FiChevronRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>

@@ -18,6 +18,15 @@ const imageStorage = new CloudinaryStorage({
   },
 });
 
+const pdfStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'learn-with-resma/pdfs',
+    allowed_formats: ['pdf'],
+    resource_type: 'raw',
+  },
+});
+
 const upload = multer({
   storage: imageStorage,
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -27,4 +36,13 @@ const upload = multer({
   },
 });
 
-module.exports = { cloudinary, upload };
+const uploadPdf = multer({
+  storage: pdfStorage,
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') cb(null, true);
+    else cb(new Error('Only PDF files are allowed'), false);
+  },
+});
+
+module.exports = { cloudinary, upload, uploadPdf };
