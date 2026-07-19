@@ -132,6 +132,15 @@ export default function CoursePlayer() {
           </div>
 
           <p className="text-gray-400 mb-6">{currentLesson?.description}</p>
+           {/* Navigation */}
+          <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-700">
+            <button onClick={handlePrev} disabled={currentLessonIndex === 0} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm font-medium">
+              <FiChevronLeft className="w-4 h-4" /> Previous Video
+            </button>
+            <button onClick={handleNext} disabled={currentLessonIndex === lessons.length - 1} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm font-medium">
+              Next Video <FiChevronRight className="w-4 h-4" />
+            </button>
+          </div>
 
           {/* PDF Notes */}
           {currentLesson?.pdfNotes?.length > 0 && (
@@ -204,15 +213,7 @@ export default function CoursePlayer() {
             </div>
           </div>
 
-          {/* Navigation */}
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-700">
-            <button onClick={handlePrev} disabled={currentLessonIndex === 0} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm font-medium">
-              <FiChevronLeft className="w-4 h-4" /> Previous Video
-            </button>
-            <button onClick={handleNext} disabled={currentLessonIndex === lessons.length - 1} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm font-medium">
-              Next Video <FiChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+         
         </div>
       </div>
     </div>
